@@ -64,7 +64,7 @@ function ringHTML(){const s=score(cur),c=2*Math.PI*38;return `<div class="ring">
 function hijri(d){try{const t=new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",{day:"numeric",month:"long",year:"numeric",era:"short"}).format(d);return /AH/.test(t)?t:""}catch(_){return""}}
 function renderToday(){const d=fromK(cur),h=d.getHours(),doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);
 const s=score(cur),isT=cur===todayK();
-app.innerHTML=`<div class="card hd"><div><h1>${d.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short",year:"numeric"})}</h1><div class="mut">${hijri(d)}</div><div class="mut">Assalamu alaikum. Be honest, be gentle.</div></div><div id="rg">${ringHTML()}</div></div>
+app.innerHTML=`<div class="card hd"><div><h1>${d.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short",year:"numeric"})}</h1><div class="mut">${hijri(d)}</div><div class="mut">Assalamu alaikum. Be honest, be gentle.</div><button class="btn" id="th" aria-label="Switch light or dark theme">${document.documentElement.dataset.theme==="light"?"🌙 Dark":"☀️ Light"}</button></div><div id="rg">${ringHTML()}</div></div>
 <div class="q">${QUOTES[doy%QUOTES.length]}</div><div id="cel" class="card" ${s>=90?"":"hidden"}>MashaAllah, strong day.</div>
 <div class="hd"><button class="btn" id="pv" aria-label="Previous day">‹ Prev</button><span class="mut">${isT?"Today":"Past day"}</span><button class="btn" id="nx" ${isT?"disabled":""} aria-label="Next day">Next ›</button></div>
 <div class="two"><section><h2>Schedule</h2><div class="card">${SCHEDULE.map(x=>row(x[0],x[3],x[4],x[1]+"–"+x[2])).join("")}</div></section>
@@ -72,12 +72,14 @@ app.innerHTML=`<div class="card hd"><div><h1>${d.toLocaleDateString(undefined,{w
 $("#pv").onclick=()=>{const x=fromK(cur);x.setDate(x.getDate()-1);cur=dk(x);renderToday()};
 $("#nx").onclick=()=>{const x=fromK(cur);x.setDate(x.getDate()+1);if(dk(x)<=todayK()){cur=dk(x);renderToday()}};}
 document.addEventListener("click",e=>{const b=e.target.closest(".ck");if(b&&view==="today"){if(cur>todayK())return;const t=ent(cur).ticks,id=b.dataset.id;t[id]=!t[id];save();b.classList.toggle("on",t[id]);b.setAttribute("aria-checked",t[id]);$("#rg").innerHTML=ringHTML();$("#cel").hidden=score(cur)<90}
+if(e.target.closest("#th")){const t=document.documentElement.dataset.theme==="light"?"dark":"light";document.documentElement.dataset.theme=t;localStorage.dos_theme=t;$("#tc").content=t==="light"?"#f6f4ef":"#0f1419";render();return}
 const n=e.target.closest("#nav button");if(n){view=n.dataset.v;document.querySelectorAll("#nav button").forEach(x=>x.classList.toggle("on",x===n));render()}
 if(Notification&&Notification.permission==="default"&&!localStorage.dos_asked){localStorage.dos_asked=1;Notification.requestPermission()}});
 function render(){if(chart){chart.destroy();chart=null}({today:renderToday,progress:renderProgress,journal:renderJournal})[view]();scrollTo(0,0)}
 /* ===== PROGRESS ===== */
 function draw(type,labels,data,max=100,cfg={}){const c=document.createElement("canvas");$("#ch").appendChild(c);if(typeof Chart==="undefined"){$("#ch").innerHTML='<p class="mut">Charts need the Chart.js file (open once online to cache it).</p>';return}
-chart=new Chart(c,{type,data:{labels,datasets:[{data,backgroundColor:"rgba(111,183,168,.5)",borderColor:"#6fb7a8",tension:.3,...cfg}]},options:{scales:type==="radar"?{r:{min:0,max,grid:{color:"#263241"},ticks:{display:false}}}:{y:{min:0,max,grid:{color:"#263241"}},x:{grid:{display:false}}},plugins:{legend:{display:false}}}})}
+const css=getComputedStyle(document.documentElement),gc=css.getPropertyValue("--line").trim();Chart.defaults.color=css.getPropertyValue("--mut").trim();
+chart=new Chart(c,{type,data:{labels,datasets:[{data,backgroundColor:"rgba(111,183,168,.5)",borderColor:"#6fb7a8",tension:.3,...cfg}]},options:{scales:type==="radar"?{r:{min:0,max,grid:{color:gc},ticks:{display:false}}}:{y:{min:0,max,grid:{color:gc}},x:{grid:{display:false}}},plugins:{legend:{display:false}}}})}
 function renderProgress(){const T=new Date(),w=lastN(7),sc=w.map(k=>score(k)),pw=lastN(7,new Date(T.getTime()-7*864e5)),m=lastN(30),pm=lastN(30,new Date(T.getTime()-30*864e5));
 let extra="";
 if(rng==="Weekly")extra=`<p>Avg <b>${avg(sc)}%</b> · Best ${Math.max(...sc)}% · Worst ${Math.min(...sc)}%</p>`;
