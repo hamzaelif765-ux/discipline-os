@@ -61,7 +61,7 @@ const $=s=>document.querySelector(s),app=$("#app");
 const CK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>';
 const row=(id,name,sub,time)=>`<div class="row"><div>${time?`<div class="t">${time}</div>`:""}<div>${name}</div>${sub?`<div class="p">${sub}</div>`:""}</div><button class="ck ${db[cur]?.ticks?.[id]?"on":""}" role="checkbox" aria-checked="${!!db[cur]?.ticks?.[id]}" aria-label="${name}" data-id="${id}">${CK}</button></div>`;
 function ringHTML(){const s=score(cur),c=2*Math.PI*38;return `<div class="ring"><svg width="92" height="92" viewBox="0 0 92 92"><circle class="bg" cx="46" cy="46" r="38"/><circle class="fg" cx="46" cy="46" r="38" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-s/100)}"/></svg><b>${s}%</b></div>`}
-function hijri(d){try{return new Intl.DateTimeFormat("en-u-ca-islamic",{day:"numeric",month:"long",year:"numeric"}).format(d)}catch(_){return""}}
+function hijri(d){try{const t=new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",{day:"numeric",month:"long",year:"numeric",era:"short"}).format(d);return /AH/.test(t)?t:""}catch(_){return""}}
 function renderToday(){const d=fromK(cur),h=d.getHours(),doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);
 const s=score(cur),isT=cur===todayK();
 app.innerHTML=`<div class="card hd"><div><h1>${d.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short",year:"numeric"})}</h1><div class="mut">${hijri(d)}</div><div class="mut">Assalamu alaikum. Be honest, be gentle.</div></div><div id="rg">${ringHTML()}</div></div>
@@ -130,6 +130,6 @@ let fired="";setInterval(()=>{const n=new Date(),hm=pad(n.getHours())+":"+pad(n.
 if(todayK()!==lastDay){if(cur===lastDay)cur=todayK();lastDay=todayK();render()}
 if(fired===hm||!("Notification" in window)||Notification.permission!=="granted")return;
 const s=SCHEDULE.find(x=>x[1]===hm);if(!s)return;fired=hm;
-navigator.serviceWorker.ready.then(r=>r.showNotification(hm==="22:00"?"Time to fill your tracker":hm+" · "+s[3],{body:s[4],icon:"icons/icon-192.png"}))},20000);
+navigator.serviceWorker.ready.then(r=>r.showNotification(hm==="22:00"?"Time to fill your tracker":hm+" · "+s[3],{body:s[4],icon:"./icon-192.png"}))},20000);
 if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js"));
 render();
