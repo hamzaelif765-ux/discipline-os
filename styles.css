@@ -31,3 +31,9 @@ table{width:100%;border-collapse:collapse;font-size:.85rem}td,th{padding:6px;bor
 #urge .big{font-size:4rem;color:var(--teal)}
 @media(min-width:800px){.two{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;align-items:start}.two>aside{position:sticky;top:16px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+#nav button{font-size:.78rem;padding:0 2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.chip{min-height:44px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:none;font-size:.8rem;cursor:pointer}.chip.on{background:var(--gold);color:var(--gt);border-color:var(--gold)}
+.ed{display:grid;gap:6px;padding:12px 0;border-bottom:1px solid var(--line)}.ed .seg input{flex:1;min-width:80px}
+select{min-height:44px;background:var(--inp);color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:8px;font:inherit}
+.ar{font-size:1.6rem;line-height:2.3;direction:rtl;text-align:right;font-family:"Noto Naskh Arabic","Traditional Arabic","Amiri",serif}
+ol{padding-left:20px}li{margin:6px 0}
