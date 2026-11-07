@@ -241,10 +241,10 @@ navigator.serviceWorker.ready.then(r=>r.showNotification(p?"Time for "+p[0]:hm==
 /* ===== EDIT TAB ===== */
 const opt=v=>CATS.map(c=>`<option ${c===v?"selected":""}>${c}</option>`).join("");
 function renderEdit(){const f=(k,i,j,v,t="text",ph="")=>`<input type="${t}" data-k="${k}" data-i="${i}" data-j="${j}" value="${esc(v)}" placeholder="${ph}" aria-label="${ph||t}">`;
-const sc=(t,k)=>`<h2>${t}</h2><div class="card">${cfg[k].map((x,i)=>`<div class="ed">${f(k,i,3,x[3],"text","Activity name")}<div class="seg">${f(k,i,1,x[1],"time")}${f(k,i,2,x[2],"time")}${f(k,i,5,x[5],"number","Weight")}</div>${f(k,i,4,x[4],"text","Purpose")}<select data-k="${k}" data-i="${i}" data-j="6">${opt(x[6])}</select><button class="btn" data-del="${k}:${i}">Delete</button></div>`).join("")}<button class="btn g" data-add="${k}">+ Add activity</button></div>`;
+const sc=(t,k)=>`<h2>${t}</h2><div class="card">${cfg[k].map((x,i)=>`<div class="ed" data-uid="${x[0]}">${f(k,i,3,x[3],"text","Activity name")}<div class="seg">${f(k,i,1,x[1],"time")}${f(k,i,2,x[2],"time")}${f(k,i,5,x[5],"number","Weight")}</div>${f(k,i,4,x[4],"text","Purpose")}<select data-k="${k}" data-i="${i}" data-j="6">${opt(x[6])}</select><button class="btn" data-del="${k}:${i}">Delete</button></div>`).join("")}<button class="btn g" data-add="${k}">+ Add activity</button></div>`;
 app.innerHTML=`<h1>Edit</h1><p class="mut">Weight = importance in score. Weight badalne ya item delete karne se purane scores bhi badalte hain. Core mode me sirf "Core" tick wali habits dikhti hain.</p>${sc(KIND.wd,"wd")}${sc(KIND.fr,"fr")}${sc(KIND.we,"we")}
-<h2>Habits</h2><div class="card">${cfg.habits.map((x,i)=>`<div class="ed">${f("habits",i,1,x[1],"text","Habit")}<div class="seg">${f("habits",i,2,x[2],"number","Weight")}<select data-k="habits" data-i="${i}" data-j="3">${opt(x[3])}</select></div><label class="mut"><input type="checkbox" data-k="habits" data-i="${i}" data-j="4" ${x[4]?"checked":""} style="width:auto;min-height:0"> Core</label><button class="btn" data-del="habits:${i}">Delete</button></div>`).join("")}<button class="btn g" data-add="habits">+ Add habit</button></div>
-<h2>Syllabus topics</h2><div class="card">${cfg.topics.map((x,i)=>`<div class="ed">${f("topics",i,1,x[1],"text","Topic")}<button class="btn" data-del="topics:${i}">Delete</button></div>`).join("")}<button class="btn g" data-add="topics">+ Add topic</button></div>
+<h2>Habits</h2><div class="card">${cfg.habits.map((x,i)=>`<div class="ed" data-uid="${x[0]}">${f("habits",i,1,x[1],"text","Habit")}<div class="seg">${f("habits",i,2,x[2],"number","Weight")}<select data-k="habits" data-i="${i}" data-j="3">${opt(x[3])}</select></div><label class="mut"><input type="checkbox" data-k="habits" data-i="${i}" data-j="4" ${x[4]?"checked":""} style="width:auto;min-height:0"> Core</label><button class="btn" data-del="habits:${i}">Delete</button></div>`).join("")}<button class="btn g" data-add="habits">+ Add habit</button></div>
+<h2>Syllabus topics</h2><div class="card">${cfg.topics.map((x,i)=>`<div class="ed" data-uid="${x[0]}">${f("topics",i,1,x[1],"text","Topic")}<button class="btn" data-del="topics:${i}">Delete</button></div>`).join("")}<button class="btn g" data-add="topics">+ Add topic</button></div>
 <h2>Prayer times</h2><div class="card">${Object.entries(cfg.pt).map(([n,t])=>`<label>${n}<input type="time" data-pt="${n}" value="${t}"></label>`).join("")}<button class="btn" id="apt">Auto-calculate (Mumbai, Hanafi)</button><p class="mut">Auto time aapke masjid ke timetable se ek-do minute alag ho sakta hai, confirm kar lena. Mausam ke saath time badalta hai, .ics mahine me dobara download karo.</p></div>
 <button class="btn" id="rst">Reset everything to default</button>`}
 document.addEventListener("change",e=>{const t=e.target;if(view!=="edit")return;if(t.dataset.pt){cfg.pt[t.dataset.pt]=t.value;saveCfg();return}if(t.dataset.k===undefined)return;
@@ -266,12 +266,15 @@ const sy=T.closest("[data-syl]");if(sy&&view==="journal"){const s=jp(localStorag
 const mm=T.closest("[data-mem]");if(mm&&view==="namaz"){const m=jp(localStorage.dos_mem,{}),k=mm.dataset.mem;m[k]=m[k]||{};if(mm.dataset.act==="done")m[k].done=!m[k].done;else m[k].rev=todayK();localStorage.dos_mem=JSON.stringify(m);const y=scrollY;render();scrollTo(0,y)}
 if(view==="edit"){const d=T.closest("[data-del]"),ad=T.closest("[data-add]");
 if(d){const [k,i]=d.dataset.del.split(":");if(confirm("Delete this item?")){cfg[k].splice(+i,1);saveCfg();render()}}
-if(ad){const k=ad.dataset.add,id="u"+Date.now();cfg[k].push(k==="habits"?[id,"New habit",1,"Mind",1]:k==="topics"?[id,"New topic"]:[id,"12:00","13:00","New activity","",1,"Mind"]);saveCfg();render()}
+if(ad){const k=ad.dataset.add,id="u"+Date.now();cfg[k].push(k==="habits"?[id,"New habit",1,"Mind",1]:k==="topics"?[id,"New topic"]:[id,"12:00","13:00","New activity","",1,"Mind"]);saveCfg();focusUid=id;render()}
 if(T.id==="rst"&&confirm("Reset all habits, schedules and prayer times to default?")){localStorage.removeItem("dos_cfg");cfg=defCfg();render()}
 if(T.id==="apt")autoPT()}
 if(window.Notification&&Notification.permission==="default"&&!localStorage.dos_asked){localStorage.dos_asked=1;Notification.requestPermission()}});
-function render(){charts.forEach(c=>c.destroy());charts=[];({today:renderToday,progress:renderProgress,journal:renderJournal,namaz:()=>{app.innerHTML=namazHTML()},edit:renderEdit})[view]();scrollTo(0,0);
-if(view==="today"&&!scrolled&&cur===todayK()){scrolled=true;const n=$("#now");if(n)n.scrollIntoView({block:"center"})}}
+let lastView="",focusUid=null;
+function render(){const y=scrollY;charts.forEach(c=>c.destroy());charts=[];({today:renderToday,progress:renderProgress,journal:renderJournal,namaz:()=>{app.innerHTML=namazHTML()},edit:renderEdit})[view]();scrollTo(0,view===lastView?y:0);lastView=view; // same screen: keep scroll position
+
+if(view==="today"&&!scrolled&&cur===todayK()){scrolled=true;const n=$("#now");if(n)n.scrollIntoView({block:"center"})}
+if(view==="edit"&&focusUid){const n=document.querySelector(`[data-uid="${focusUid}"]`);focusUid=null;if(n){n.scrollIntoView({block:"center"});const i=n.querySelector("input");if(i)i.focus()}}}
 /* ===== START ===== */
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist(); // ask browser not to evict data
 if("serviceWorker"in navigator){addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js"));let had=!!navigator.serviceWorker.controller;
