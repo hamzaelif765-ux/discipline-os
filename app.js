@@ -55,6 +55,8 @@ const SCHEDULE_WE=[ // Saturday/Sunday: more free time
 let cfg=JSON.parse(localStorage.dos_cfg||"null")||{wd:SCHEDULE.map(x=>[...x]),we:SCHEDULE_WE.map(x=>[...x]),habits:HABITS.map(x=>[...x])};
 const srt=a=>a.sort((x,y)=>x[1]<y[1]?-1:x[1]>y[1]?1:0);
 const saveCfg=()=>{srt(cfg.wd);srt(cfg.we);localStorage.dos_cfg=JSON.stringify(cfg)};
+const zoom=()=>+(localStorage.dos_zoom||90); // UI size in percent (70-120)
+const setZoom=z=>{z=Math.min(120,Math.max(70,z));localStorage.dos_zoom=z;document.documentElement.style.zoom=z/100};
 const isWE=k=>[0,6].includes(fromK(k).getDay());
 const sch=k=>isWE(k)?cfg.we:cfg.wd;
 const allFor=k=>[...sch(k).map(s=>({id:s[0],w:+s[5],c:s[6]})),...cfg.habits.map(h=>({id:h[0],w:+h[2],c:h[3]}))];
@@ -88,7 +90,7 @@ function ringHTML(){const s=score(cur),c=2*Math.PI*38;return `<div class="ring">
 function hijri(d){try{const t=new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",{day:"numeric",month:"long",year:"numeric",era:"short"}).format(d);return /AH/.test(t)?t:""}catch(_){return""}}
 function renderToday(){const d=fromK(cur),h=d.getHours(),doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);
 const s=score(cur),isT=cur===todayK();
-app.innerHTML=`<div class="card hd"><div><h1>${d.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short",year:"numeric"})}</h1><div class="mut">${hijri(d)}</div><div class="mut">Assalamu alaikum. Be honest, be gentle.</div><button class="btn" id="th" aria-label="Switch light or dark theme">${document.documentElement.dataset.theme==="light"?"🌙 Dark":"☀️ Light"}</button></div><div id="rg">${ringHTML()}</div></div>
+app.innerHTML=`<div class="card hd"><div><h1>${d.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short",year:"numeric"})}</h1><div class="mut">${hijri(d)}</div><div class="mut">Assalamu alaikum. Be honest, be gentle.</div><button class="btn" id="th" aria-label="Switch light or dark theme">${document.documentElement.dataset.theme==="light"?"🌙 Dark":"☀️ Light"}</button><button class="btn" id="zm" aria-label="Make smaller">A−</button><button class="btn" id="zp" aria-label="Make bigger">A+</button><span class="mut"> ${zoom()}%</span></div><div id="rg">${ringHTML()}</div></div>
 <div class="q">${QUOTES[doy%QUOTES.length]}</div><div id="cel" class="card" ${s>=90?"":"hidden"}>MashaAllah, strong day.</div>
 <div class="hd"><button class="btn" id="pv" aria-label="Previous day">‹ Prev</button><span class="mut">${isT?"Today":"Past day"}</span><button class="btn" id="nx" ${isT?"disabled":""} aria-label="Next day">Next ›</button></div>
 <div class="two"><section><h2>Schedule · ${isWE(cur)?"Weekend":"Weekday"}</h2><div class="card">${sch(cur).map(x=>row(x[0],x[3],x[4],x[1]+"–"+x[2])).join("")}</div></section>
@@ -96,6 +98,7 @@ app.innerHTML=`<div class="card hd"><div><h1>${d.toLocaleDateString(undefined,{w
 $("#pv").onclick=()=>{const x=fromK(cur);x.setDate(x.getDate()-1);cur=dk(x);renderToday()};
 $("#nx").onclick=()=>{const x=fromK(cur);x.setDate(x.getDate()+1);if(dk(x)<=todayK()){cur=dk(x);renderToday()}};}
 document.addEventListener("click",e=>{const b=e.target.closest(".ck,.chip");if(b&&view==="today"){if(cur>todayK())return;const t=ent(cur).ticks,id=b.dataset.id;t[id]=!t[id];save();b.classList.toggle("on",t[id]);b.setAttribute("aria-checked",t[id]);$("#rg").innerHTML=ringHTML();$("#cel").hidden=score(cur)<90}
+if(e.target.closest("#zm,#zp")){setZoom(zoom()+(e.target.closest("#zp")?5:-5));render();return}
 if(e.target.closest("#th")){const t=document.documentElement.dataset.theme==="light"?"dark":"light";document.documentElement.dataset.theme=t;localStorage.dos_theme=t;$("#tc").content=t==="light"?"#f6f4ef":"#0f1419";render();return}
 const n=e.target.closest("#nav button");if(n){view=n.dataset.v;document.querySelectorAll("#nav button").forEach(x=>x.classList.toggle("on",x===n));render()}
 if(Notification&&Notification.permission==="default"&&!localStorage.dos_asked){localStorage.dos_asked=1;Notification.requestPermission()}});
