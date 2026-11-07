@@ -37,3 +37,7 @@ table{width:100%;border-collapse:collapse;font-size:.85rem}td,th{padding:6px;bor
 select{min-height:44px;background:var(--inp);color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:8px;font:inherit}
 .ar{font-size:1.6rem;line-height:2.3;direction:rtl;text-align:right;font-family:"Noto Naskh Arabic","Traditional Arabic","Amiri",serif}
 ol{padding-left:20px}li{margin:6px 0}
+#lock{position:fixed;inset:0;background:var(--bg);z-index:20;padding:24px;display:grid;align-content:center;gap:12px;text-align:center}#lock[hidden],#urge[hidden],#upd[hidden]{display:none}
+#upd{position:fixed;top:0;left:0;right:0;z-index:15;background:var(--gold);color:var(--gt);padding:calc(8px + env(safe-area-inset-top)) 12px 8px;text-align:center}#upd button{margin-left:8px;min-height:36px;border-radius:10px;border:0;padding:0 12px}
+.btn.on{background:var(--teal);color:var(--on)}.row.now{border-left:3px solid var(--gold);padding-left:8px}
+details>summary{cursor:pointer;list-style:none;min-height:44px;display:flex;align-items:center}details>summary::-webkit-details-marker{display:none}details[open]>summary h3::after{content:" ▾"}details:not([open])>summary h3::after{content:" ▸"}

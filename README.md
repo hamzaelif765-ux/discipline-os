@@ -13,3 +13,9 @@ Tick items, close app, reopen (persisted) · airplane mode (still loads) · Expo
 Old version showing: bump `VERSION` in service-worker.js, redeploy, close and reopen twice. No install button: needs HTTPS (GitHub Pages is), a visit of a few seconds, and Chrome menu > Install app. Notifications on Android Chrome only work while app is open or recently active; use the .ics for reliable alarms.
 ## Extras added
 Dua/Tahajjud, plan tomorrow's top 3, phone-free first hour: they support consistency and God-consciousness.
+
+## v6 notes
+- Upload ALL files: index.html, app.js, namaz.js, styles.css, service-worker.js, manifest.json, icons. Files go in repo root (no icons folder).
+- Updates now arrive by themselves (network-first); a "Naya version aa gaya" bar appears. Still, never clear "site data" without Export Backup first.
+- Backup now includes your edits (schedule, habits, topics, prayer times), theme, size, syllabus and surah tracker.
+- Auto prayer times use the adhan library from a CDN; if the button says the library did not load, set times by hand in the Edit tab.
